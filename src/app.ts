@@ -3,11 +3,13 @@ import express, {NextFunction} from "express";
 import helmet from "helmet";
 import cors from 'cors';
 import {connectToDatabase} from "./config/database";
+import {ApiError, logger} from "./utils/";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+const isDev = process.env.NODE_ENV === 'development';
 
 // TODO: define controllers
 
@@ -16,8 +18,7 @@ app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-	console.log(`${req.method} ${req.path}`);
-	// TODO: implement logging
+	logger.info(`${req.method} ${req.path}`);
 	next();
 })
 
@@ -42,16 +43,26 @@ app.use('*', (req, res) => {
 });
 
 // TODO: Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: NextFunction) => {});
+app.use((err: any, req: express.Request, res: express.Response, next: NextFunction) => {
+	const stack = isDev ? { stack: err.stack } : {};
+
+	if (err instanceof ApiError) {
+		return res.status(err.statusCode).json({ message: err.message, success: false, ...stack });
+	}
+
+	logger.error('Unexpected error: ', err);
+	res.status(500).json({ message: 'Internal Server Error', success: false, ...stack });
+});
 
 const startServer = async () => {
 	try {
 		await connectToDatabase();
 		app.listen(PORT, () => {
-			// TODO: implement proper logger
+			logger.success(`Server is running on port ${PORT}`);
+			logger.success(`Environment: ${process.env.NODE_ENV}`);
 		});
 	} catch (error) {
-		// TODO: implement proper logger
+		logger.error('Failed to start server: ', error);
 		process.exit(1)
 	}
 }
