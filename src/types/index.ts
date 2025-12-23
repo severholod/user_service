@@ -1,3 +1,5 @@
+import {LoginDto, RegisterDto} from "../dto/auth.dto";
+
 export type UserRole = 'admin' | 'user';
 export type UserStatus = 'active' | 'blocked';
 
@@ -48,4 +50,14 @@ declare global {
 			user?: ITokenPayload;
 		}
 	}
+	namespace NodeJS {
+		interface ProcessEnv {
+			JWT_EXPIRES_IN?: `${number} days`;
+		}
+	}
+}
+
+export interface IAuthService {
+	register(regDto: RegisterDto): Promise<IAuthResponse>;
+	login(loginDto: LoginDto): Promise<IAuthResponse>;
 }

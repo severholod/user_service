@@ -4,6 +4,9 @@ import helmet from "helmet";
 import cors from 'cors';
 import {connectToDatabase} from "./config/database";
 import {ApiError, logger} from "./utils/";
+import {AuthController} from "./controllers";
+import {AuthService} from "./services";
+import {UserStorage} from "./storages";
 
 dotenv.config();
 
@@ -11,7 +14,8 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 const isDev = process.env.NODE_ENV === 'development';
 
-// TODO: define controllers
+const userStorage = new UserStorage()
+const authController = new AuthController(new AuthService(userStorage))
 
 app.use(helmet())
 app.use(cors())
@@ -28,8 +32,8 @@ app.get('/health', (req, res) => {
 })
 
 // Auth routes
-app.post('/auth/login', async (req, res, next: NextFunction) => {});
-app.post('/auth/register', async (req, res, next: NextFunction) => {});
+app.post('/auth/login', authController.login);
+app.post('/auth/register', authController.register);
 
 // User routes
 app.get('/api/users', async (req, res, next: NextFunction) => {});
@@ -42,7 +46,6 @@ app.use('*', (req, res) => {
 	res.status(404).json({ message: `Route ${req.originalUrl} not found`, success: false });
 });
 
-// TODO: Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: NextFunction) => {
 	const stack = isDev ? { stack: err.stack } : {};
 
