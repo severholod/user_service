@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import {IAuthResponse, IUserCreate, IAuthService, IUserStorage} from "../types";
-import {ApiError, Validators} from "../utils";
+import {ApiError} from "../utils";
 import {LoginDto, RegisterDto} from "../dto";
 import {TokenService} from "./token.service";
 
@@ -25,22 +25,23 @@ export class AuthService implements IAuthService {
 			password: hashedPassword,
 			role: 'user'
 		};
-		const newUser = await this.userStorage.create(userData);
+		const {id, role, email, fullName, status, dateOfBirth} = await this.userStorage.create(userData);
 
 		const token = TokenService.generateToken({
-			userId: newUser.id,
-			role: newUser.role,
-			email: newUser.email
+			userId: id,
+			role,
+			email
 		});
 
 		return {
 			token,
 			user: {
-				id: newUser.id,
-				email: newUser.email,
-				fullName: newUser.fullName,
-				role: newUser.role,
-				status: newUser.status
+				id,
+				email,
+				fullName,
+				role,
+				status,
+				dateOfBirth
 			}
 		}
 	}
@@ -73,7 +74,8 @@ export class AuthService implements IAuthService {
 				email: user.email,
 				fullName: user.fullName,
 				role: user.role,
-				status: user.status
+				status: user.status,
+				dateOfBirth: user.dateOfBirth
 			}
 		}
 	}

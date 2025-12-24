@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
-import express, {NextFunction} from "express";
+import express, {Response, Request} from "express";
 import helmet from "helmet";
 import cors from 'cors';
 import {connectToDatabase} from "./config/database";
 import {ApiError, logger} from "./utils/";
-import {AuthController} from "./controllers";
-import {AuthService} from "./services";
+import {AuthController, UserController} from "./controllers";
+import {AuthService, UserService} from "./services";
 import {UserStorage} from "./storages";
+import {validateLogin, validateRegister} from "./middlewares";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const userStorage = new UserStorage()
 const authController = new AuthController(new AuthService(userStorage))
+const userController = new UserController(new UserService(userStorage))
 
 app.use(helmet())
 app.use(cors())
@@ -32,21 +34,21 @@ app.get('/health', (req, res) => {
 })
 
 // Auth routes
-app.post('/auth/login', authController.login);
-app.post('/auth/register', authController.register);
+app.post('/api/auth/login', validateLogin, authController.login);
+app.post('/api/auth/register', validateRegister, authController.register);
 
 // User routes
-app.get('/api/users', async (req, res, next: NextFunction) => {});
-app.get('/api/users/:id', async (req, res, next: NextFunction) => {});
-app.patch('/api/users/:id', async (req, res, next: NextFunction) => {});
-app.post('/api/users/:id/toggle-block', async (req, res, next: NextFunction) => {});
+// TODO: Add middleware to protect these routes (e.g., admin only)
+app.get('/api/users', userController.getAllUsers);
+app.get('/api/users/:id', userController.getUserById);
+app.post('/api/users/:id/toggle-block', userController.toggleBlockUser);
 
 // 404
-// app.use('*', (req, res) => {
-// 	res.status(404).json({ message: `Route ${req.originalUrl} not found`, success: false });
-// });
+app.use((req, res) => {
+	res.status(404).json({ message: `Route ${req.method} ${req.originalUrl} not found`, success: false });
+});
 
-app.use((err: any, req: express.Request, res: express.Response, next: NextFunction) => {
+app.use((err: any, _: Request, res: Response) => {
 	const stack = isDev ? { stack: err.stack } : {};
 
 	if (err instanceof ApiError) {
