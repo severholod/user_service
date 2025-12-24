@@ -1,21 +1,18 @@
 import bcrypt from 'bcryptjs';
-import {IAuthResponse, IUserCreate, IAuthService} from "../types";
+import {IAuthResponse, IUserCreate, IAuthService, IUserStorage} from "../types";
 import {ApiError, Validators} from "../utils";
 import {LoginDto, RegisterDto} from "../dto";
 import {TokenService} from "./token.service";
 
 
 export class AuthService implements IAuthService {
-	// TODO: userStorage
-	private userStorage: any;
+	private userStorage: IUserStorage;
 
-	constructor(userRepository: any) {
-		this.userStorage = userRepository;
+	constructor(userStorage: IUserStorage) {
+		this.userStorage = userStorage;
 	}
 
 	async register(regDto: RegisterDto): Promise<IAuthResponse> {
-		Validators.validateUserCreate(regDto);
-
 		const existingUser = await this.userStorage.findByEmail(regDto.email);
 		if (existingUser) {
 			throw ApiError.badRequest('Email is already in use');
@@ -38,7 +35,13 @@ export class AuthService implements IAuthService {
 
 		return {
 			token,
-			user: newUser
+			user: {
+				id: newUser.id,
+				email: newUser.email,
+				fullName: newUser.fullName,
+				role: newUser.role,
+				status: newUser.status
+			}
 		}
 	}
 
@@ -65,7 +68,13 @@ export class AuthService implements IAuthService {
 
 		return {
 			token,
-			user
+			user: {
+				id: user.id,
+				email: user.email,
+				fullName: user.fullName,
+				role: user.role,
+				status: user.status
+			}
 		}
 	}
 }

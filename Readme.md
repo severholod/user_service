@@ -30,7 +30,6 @@ password: string;
 role: 'admin' | 'user';
 status: 'active' | 'blocked';
 createdAt: Date;
-updatedAt: Date;
 }
 ```
 

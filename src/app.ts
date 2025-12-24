@@ -42,9 +42,9 @@ app.patch('/api/users/:id', async (req, res, next: NextFunction) => {});
 app.post('/api/users/:id/toggle-block', async (req, res, next: NextFunction) => {});
 
 // 404
-app.use('*', (req, res) => {
-	res.status(404).json({ message: `Route ${req.originalUrl} not found`, success: false });
-});
+// app.use('*', (req, res) => {
+// 	res.status(404).json({ message: `Route ${req.originalUrl} not found`, success: false });
+// });
 
 app.use((err: any, req: express.Request, res: express.Response, next: NextFunction) => {
 	const stack = isDev ? { stack: err.stack } : {};

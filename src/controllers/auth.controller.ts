@@ -10,7 +10,7 @@ export class AuthController {
 		this.authService = authService;
 	}
 
-	public async register(req: Request, res: Response, next: NextFunction) {
+	register = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const regDto = RegisterDto.fromRequest(req.body);
 			const response = await this.authService.register(regDto);
@@ -26,7 +26,7 @@ export class AuthController {
 			next(error);
 		}
 	}
-	public async login(req: Request, res: Response, next: NextFunction) {
+	login = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const loginDto = LoginDto.fromRequest(req.body);
 			const response = await this.authService.login(loginDto);

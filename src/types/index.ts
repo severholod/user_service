@@ -1,4 +1,4 @@
-import {LoginDto, RegisterDto} from "../dto/auth.dto";
+import {LoginDto, RegisterDto} from "../dto";
 
 export type UserRole = 'admin' | 'user';
 export type UserStatus = 'active' | 'blocked';
@@ -8,10 +8,10 @@ export interface IUser {
 	fullName: string;
 	dateOfBirth: Date;
 	email: string;
+	password: string;
 	role: UserRole;
 	status: UserStatus;
 	createdAt: Date;
-	updatedAt: Date;
 }
 
 export interface IUserCreate {
@@ -55,6 +55,13 @@ declare global {
 			JWT_EXPIRES_IN?: `${number} days`;
 		}
 	}
+}
+
+export interface IUserStorage {
+	create(userData: IUserCreate): Promise<IUser>;
+	findByEmail(email: string): Promise<IUser | null>;
+	findById(id: string): Promise<IUser | null>;
+	findAll(): Promise<IUser[]>;
 }
 
 export interface IAuthService {

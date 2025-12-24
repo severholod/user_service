@@ -1,0 +1,1 @@
+export {validateLogin, validateRegister} from './validation.middleware'
