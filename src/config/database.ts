@@ -39,4 +39,13 @@ export const connectToDatabase = async () => {
 	}
 }
 
+export const disconnectFromDatabase = async () => {
+	try {
+		await sequelize.close();
+		logger.info('Database connection closed.');
+	} catch (error) {
+		logger.error('Error closing database connection:', error);
+	}
+};
+
 export default sequelize;
