@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
-    "test": "jest"
+    "test": "jest",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up -d"
   },
   "keywords": [],
   "author": "",
